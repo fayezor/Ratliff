@@ -3,7 +3,7 @@ library("vioplot")
 library("ggplot2")
 
 # Get dataset
-data <- read.table("../prostatedata.txt")
+data <- read.table("data/prostatedata.txt")
 groups <- ifelse(substr(names(data),1,1)=="C","Control","Knockdown")
 
 # Define server logic required to generate and plot a violin plot
@@ -19,16 +19,24 @@ shinyServer(function(input, output){
   output$violinPlot <- reactivePlot(function(){
     
     # Get the input gene reactively
-    input <- input$geneID
+    geneID <- input$geneID
     
-    gene.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==input,])), group=groups)
+    if(input$log==TRUE){
+      gene <- as.vector(as.numeric(data[rownames(data)==geneID,]))
+      gene.df <- data.frame(gene=log2(gene+1), group=groups) 
+      ylab <- "log2( Expression )"
+    }
+    else{
+      gene.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID,])), group=groups) 
+      ylab <- "Expression"
+    }
     
     p <- ggplot(gene.df, aes(y=gene, x=group, color=group)) + 
       geom_violin() + 
       geom_jitter(shape=16, position=position_jitter(0.1), cex=1.2) +
       #theme(legend.position="none") +
-      scale_x_discrete(name=input) +
-      scale_y_continuous(name="log2( Expression )") +
+      scale_x_discrete(name=geneID) +
+      scale_y_continuous(name=ylab) +
       ggtitle("Violin Plots of Gene Expression") +
       theme(plot.title = element_text(size=12, face="bold", vjust=2))
     print(p)

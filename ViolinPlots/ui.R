@@ -12,11 +12,14 @@ shinyUI(fluidPage(
     sidebarPanel(
       helpText("Enter Ensembl ID"),
       textInput("geneID", label = h3("Ensembl ID"), 
-                value = "Enter text...")
+                value = "Enter text..."),
+      checkboxInput("log", "Plot gene expression on log scale", 
+                    value = FALSE)
       ),
     
     # Show a plot of the generated distribution
-    mainPanel("panel")
-      #plotOutput("violinPlot")
+    mainPanel(
+      plotOutput("violinPlot")
     )
+  )
 ))
