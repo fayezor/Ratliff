@@ -13,7 +13,8 @@ shinyUI(fluidPage(
       helpText("Violin plots depict expression of a given gene in Control vs. Knockdown cells. Note that the horizontal range of the points across the x-axis is simply a graphical jitter; it is meant for visual clarity and has no further meaning."),
       textInput("geneID", label = h5("Enter Ensembl ID for gene of interest"), value = "e.g. ENSG..."),
       checkboxInput("log", "Plot gene expression on log scale", 
-                    value = FALSE)
+                    value = FALSE),
+      submitButton("Submit")
       ),
     
     mainPanel(

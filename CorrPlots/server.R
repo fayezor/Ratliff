@@ -22,13 +22,13 @@ inputValidation <- function(input){
 }
 
 shinyServer(function(input, output){
- 
+  
   #Expression that generates the correlation between two genes plot 
   output$correlationPlot <- renderPlot(function(){
     
     # Get gene ID's reactively
     geneID1 <- reactive({
-       #Input validation 
+      #Input validation 
       validate(
         inputValidation(input$XaxisGeneID)
       )
@@ -36,38 +36,66 @@ shinyServer(function(input, output){
     })
     
     geneID2 <- reactive({
-       #Input validation 
+      #Input validation 
       validate(
         inputValidation(input$yaxisGeneID)
       )
       input$yaxisGeneID
     })
-        
-#Get the input gene reactively
-  gene1.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID1(),])), group=groups)
-  gene2.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID2(),])), group=groups)
-  xlab <- paste(input$XaxisGeneID, " Expression" )
-  ylab <- paste(input$yaxisGeneID, " Expression" )
-  gene1.gene2.df <- data.frame(gene1=as.numeric(data[rownames(data)==input$XaxisGeneID,]), gene2=as.numeric(data[rownames(data)==input$yaxisGeneID,]), group=groups)
-  
-  #plotting
-  set.seed(5749)
-  p <- ggplot(gene1.gene2.df, aes(x = gene1, y = gene2)) + geom_point(position="jitter", aes(color=group)) + 
-     scale_x_continuous(name=xlab) +
+    
+    #Get the input gene reactively
+    gene1.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID1(),])), group=groups)
+    gene2.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID2(),])), group=groups)
+    xlab <- paste(input$XaxisGeneID, "Expression", sep=" ")
+    ylab <- paste(input$yaxisGeneID, "Expression", sep=" ")
+    gene1.gene2.df <- data.frame(gene1=as.numeric(data[rownames(data)==input$XaxisGeneID,]), gene2=as.numeric(data[rownames(data)==input$yaxisGeneID,]), group=groups)
+    
+    # If log transform box is selected...
+    if(input$log==TRUE){
+      gene1.gene2.df$gene1 <- log2(gene1.gene2.df$gene1 + 1)
+      gene1.gene2.df$gene2 <- log2(gene1.gene2.df$gene2 + 1)
+      xlab <- paste(input$XaxisGeneID, "log2(Expression)", sep=" ")
+      ylab <- paste(input$yaxisGeneID, "log2(Expression)", sep=" ")
+    }
+    
+    #plotting
+    set.seed(5749)
+    p <- ggplot(gene1.gene2.df, aes(x = gene1, y = gene2)) +
+      geom_point(aes(color=group)) + 
+      scale_x_continuous(name=xlab) +
       scale_y_continuous(name=ylab) + 
-    theme(legend.title=element_blank()) 
-  p
+      theme(legend.title=element_blank())
+    p
+  })
   
-})
-#####Output correltations
-output$correlations <- renderText({ 
+  #####Output correlations
+  output$correlations <- renderText({ 
+    
+    # Get gene ID's reactively
+    geneID1 <- reactive({
+      #Input validation 
+      validate(
+        inputValidation(input$XaxisGeneID)
+      )
+      input$XaxisGeneID
+    })
+    
+    geneID2 <- reactive({
+      #Input validation 
+      validate(
+        inputValidation(input$yaxisGeneID)
+      )
+      input$yaxisGeneID
+    })
+    
+    #Get the input gene reactively
+    gene1.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID1(),])), group=groups)
+    gene2.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID2(),])), group=groups)
+    
+    correlations <- round(cor(gene1.df$gene, gene2.df$gene),2)
+    paste("Correlation: ", correlations, sep="")
+  })  
   
-  correlations<-round(cor(gene1.df$gene, gene2.df$gene),2)
-  
-  paste("Correlation:", correlations, sep="")
-})  
-  
- }) 
- 
-  
-  
+}) 
+
+

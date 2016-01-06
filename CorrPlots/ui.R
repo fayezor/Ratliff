@@ -10,9 +10,11 @@ shinyUI(fluidPage(
   sidebarLayout(
     
     sidebarPanel(
-      helpText("The correlation plots depict the correlation between gene expression values of two given genes."),
-      textInput("XaxisGeneID", label = h5("Enter Ensembl ID for gene you would like on the x axis of the Correlation Plot"), value = "e.g. ENSG..."),
-      textInput("yaxisGeneID", label = h5("Enter Ensembl ID for gene you would like on the y axis of the Correlation Plot"), value = "e.g. ENSG..."),
+      helpText("These plots depict the correlation between the expression vlues of two given genes."),
+      textInput("XaxisGeneID", label = h5("Enter Ensembl ID for gene you would like on the x-axis"), value = "e.g. ENSG..."),
+      textInput("yaxisGeneID", label = h5("Enter Ensembl ID for gene you would like on the y-axis"), value = "e.g. ENSG..."),
+      checkboxInput("log", "Plot gene expression on log scale", 
+                    value = FALSE),
       submitButton("Submit")
     ),
     
