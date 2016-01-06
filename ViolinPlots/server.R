@@ -97,4 +97,5 @@ shinyServer(function(input, output){
       kdzeros <- round(kdzeros*100,2)
       paste("Knockdown group: ", kdzeros, "%", sep="")
     })
+  
 })
