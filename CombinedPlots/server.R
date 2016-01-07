@@ -126,7 +126,7 @@ shinyServer(function(input, output){
     gene1.gene2.df <- data.frame(gene1=as.numeric(data[rownames(data)==input$XaxisGeneID,]), gene2=as.numeric(data[rownames(data)==input$yaxisGeneID,]), group=groups)
     
     # If log transform box is selected...
-    if(input$log==TRUE){
+    if(input$log2==TRUE){
       gene1.gene2.df$gene1 <- log2(gene1.gene2.df$gene1 + 1)
       gene1.gene2.df$gene2 <- log2(gene1.gene2.df$gene2 + 1)
       xlab <- paste(input$XaxisGeneID, "log2(Expression)", sep=" ")
@@ -139,7 +139,9 @@ shinyServer(function(input, output){
       geom_point(aes(color=group)) + 
       scale_x_continuous(name=xlab) +
       scale_y_continuous(name=ylab) + 
-      theme(legend.title=element_blank())
+      theme(legend.title=element_blank(), 
+            axis.title.x=element_text(size=18), 
+            axis.title.y=element_text(size=18))
     p
   })
   
