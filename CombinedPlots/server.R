@@ -103,7 +103,16 @@ shinyServer(function(input, output){
       paste("Gene ", geneID(), " was filtered out prior to differential expression, as its average read count across all replicates was < 5.")
     }
     else{
-      
+      str1 <- paste("Adjusted p-value: ", round(gene.DEinfo$FDR, 3), sep="")
+      str2 <- paste("Log fold-change: ", round(gene.DEinfo$logFC, 3), sep="")
+      if (gene.DEinfo$FDR < 0.05){
+        str3 <- paste("Gene ", geneID(), " is differentially expressed.", sep="")
+        HTML(paste(str1, str2, str3, sep = '<br/>'))
+      }
+      else{
+        str3 <- paste("Gene ", geneID(), " is not differentially expressed.", sep="")
+        HTML(paste(str1, str2, str3, sep = '<br/>'))
+      }
     }
   })
   
