@@ -4,6 +4,9 @@ library("ggplot2")
 #ENSG00000000457
 #ENSG00000142515
 
+# Get DE results information
+DEresults <- read.table("data/DEresults_full.txt")
+
 # Get dataset and groups
 data <- read.table("data/prostatedata.txt")
 groups <- ifelse(substr(names(data),1,1)=="C","Control","Knockdown")
@@ -35,7 +38,7 @@ shinyServer(function(input, output){
       input$geneID
     })
     
-    # Get the input gene reactively
+    # Get data from the input gene reactively
     gene.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID(),])), group=groups)
     ylab <- "Expression"
     
@@ -97,6 +100,53 @@ shinyServer(function(input, output){
     paste("Knockdown group: ", kdzeros, "%", sep="")
   })
   
+  ##### Output differential expression results
+  output$pvalue <- renderText({
+    
+    # Get gene ID's reactively
+    geneID <- reactive({
+      # Input validation 
+      validate(
+        inputValidation(input$geneID)
+      )
+      input$geneID
+    })
+    gene.DEinfo <- DEresults[rownames(DEresults)==geneID(),] 
+    paste("Adjusted p-value: ", round(gene.DEinfo$FDR,3), sep="")
+  })
+  
+  ##### Output log fold-change between groups
+  output$logFC <- renderText({
+    
+    # Get gene ID's reactively
+    geneID <- reactive({
+      # Input validation 
+      validate(
+        inputValidation(input$geneID)
+      )
+      input$geneID
+    })
+    gene.DEinfo <- DEresults[rownames(DEresults)==geneID(),] 
+    paste("Log fold-change: ", round(gene.DEinfo$logFC,3), sep="")
+  })
+  
+  ##### Output differential expression results
+  output$result<- renderText({
+    
+    # Get gene ID's reactively
+    geneID <- reactive({
+      # Input validation 
+      validate(
+        inputValidation(input$geneID)
+      )
+      input$geneID
+    })
+    gene.DEinfo <- DEresults[rownames(DEresults)==geneID(),] 
+    if(gene.DEinfo$FDR < 0.05){
+      paste("Gene ", geneID(), " is differentially expressed.")
+    }
+    else paste("Gene ", geneID(), " is not differentially expressed.")
+  })
   
   #Expression that generates the correlation between two genes plot 
   output$correlationPlot <- renderPlot(function(){

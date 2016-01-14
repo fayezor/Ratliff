@@ -21,8 +21,15 @@ shinyUI(navbarPage("Plots for Ratliff scRNA-Seq Prostate Data",
                                 plotOutput("violinPlot"),
                                 # Report percentage of zeros in either group
                                 strong("Percentage of zero counts"),
+                                br(),
                                 textOutput("controlzeros"),
-                                textOutput("kdzeros")
+                                textOutput("kdzeros"),
+                                br(),
+                                strong("Differential expression results"),
+                                br(),
+                                textOutput("logFC"),
+                                textOutput("pvalue"),
+                                textOutput("result")
                               )
                             )
                             ),
