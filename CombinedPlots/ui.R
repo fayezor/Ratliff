@@ -22,14 +22,11 @@ shinyUI(navbarPage("Plots for Ratliff scRNA-Seq Prostate Data",
                                 # Report percentage of zeros in either group
                                 strong("Percentage of zero counts"),
                                 br(),
-                                textOutput("controlzeros"),
-                                textOutput("kdzeros"),
+                                htmlOutput("zeros"),
                                 br(),
                                 strong("Differential expression results"),
                                 br(),
-                                textOutput("logFC"),
-                                textOutput("pvalue"),
-                                textOutput("result")
+                                htmlOutput("DEresults")
                               )
                             )
                             ),
@@ -52,7 +49,6 @@ shinyUI(navbarPage("Plots for Ratliff scRNA-Seq Prostate Data",
                               mainPanel(
                                 # Show a plot of the generated distribution
                                 plotOutput("correlationPlot"),
-                                
                                 # Report Correlation between gene expression values of the two selected genes
                                 strong("Correlation of Gene Expression Values"),
                                 textOutput("correlations")

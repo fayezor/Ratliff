@@ -60,9 +60,9 @@ shinyServer(function(input, output){
             legend.position="none")
     print(p)
   })
-  
+
   ##### Output percentage of control zeros
-  output$controlzeros <- renderText({ 
+  output$zeros <- renderUI({ 
     
     # Get gene ID's reactively
     geneID <- reactive({
@@ -78,30 +78,17 @@ shinyServer(function(input, output){
     controlzeros <- length(which(gene.df[gene.df$group=="Control",]$gene==0)) / length(which(groups=="Control"))
     controlzeros <- round(controlzeros*100,2)
     
-    paste("Control group: ", controlzeros, "%", sep="")
-  })
-  
-  ##### Output percentage of control zeros
-  output$kdzeros <- renderText({ 
-    
-    # Get gene ID's reactively
-    geneID <- reactive({
-      # Input validation 
-      validate(
-        inputValidation(input$geneID)
-      )
-      input$geneID
-    })
-    
-    gene.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID(),])), group=groups)
-    
     kdzeros <- length(which(gene.df[gene.df$group=="Knockdown",]$gene==0)) / length(which(groups=="Knockdown"))
     kdzeros <- round(kdzeros*100,2)
-    paste("Knockdown group: ", kdzeros, "%", sep="")
+    
+    str1 <- paste("Control group: ", controlzeros, "%", sep="")
+    str2 <- paste("Knockdown group: ", kdzeros, "%", sep="")
+    
+    HTML(paste(str1, str2, sep = '<br/>'))
   })
   
   ##### Output differential expression results
-  output$pvalue <- renderText({
+  output$DEresults <- renderUI({
     
     # Get gene ID's reactively
     geneID <- reactive({
@@ -112,40 +99,12 @@ shinyServer(function(input, output){
       input$geneID
     })
     gene.DEinfo <- DEresults[rownames(DEresults)==geneID(),] 
-    paste("Adjusted p-value: ", round(gene.DEinfo$FDR,3), sep="")
-  })
-  
-  ##### Output log fold-change between groups
-  output$logFC <- renderText({
-    
-    # Get gene ID's reactively
-    geneID <- reactive({
-      # Input validation 
-      validate(
-        inputValidation(input$geneID)
-      )
-      input$geneID
-    })
-    gene.DEinfo <- DEresults[rownames(DEresults)==geneID(),] 
-    paste("Log fold-change: ", round(gene.DEinfo$logFC,3), sep="")
-  })
-  
-  ##### Output differential expression results
-  output$result<- renderText({
-    
-    # Get gene ID's reactively
-    geneID <- reactive({
-      # Input validation 
-      validate(
-        inputValidation(input$geneID)
-      )
-      input$geneID
-    })
-    gene.DEinfo <- DEresults[rownames(DEresults)==geneID(),] 
-    if(gene.DEinfo$FDR < 0.05){
-      paste("Gene ", geneID(), " is differentially expressed.")
+    if (geneID() %in% rownames(DEresults) == FALSE){
+      paste("Gene ", geneID(), " was filtered out prior to differential expression, as its average read count across all replicates was < 5.")
     }
-    else paste("Gene ", geneID(), " is not differentially expressed.")
+    else{
+      
+    }
   })
   
   #Expression that generates the correlation between two genes plot 
