@@ -1,6 +1,6 @@
-library("shiny")
-library("ggplot2")
-library("DT")
+require("shiny")
+require("ggplot2")
+require("DT")
 
 #ENSG00000000457
 #ENSG00000142515

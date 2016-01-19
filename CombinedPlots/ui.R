@@ -1,4 +1,6 @@
 library("shiny")
+require("ggplot2")
+require("DT")
 
 shinyUI(navbarPage("Ratliff scRNA-Seq Prostate Data",
                    
