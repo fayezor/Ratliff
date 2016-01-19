@@ -1,11 +1,14 @@
 library("shiny")
 library("ggplot2")
+library("DT")
 
 #ENSG00000000457
 #ENSG00000142515
 
 # Get DE results information
 DEresults <- read.table("data/DEresults_full.txt")
+
+table <- round(DEresults,3)
 
 # Get dataset and groups
 data <- read.table("data/prostatedata.txt")
@@ -25,6 +28,29 @@ inputValidation <- function(input){
 }
 
 shinyServer(function(input, output){
+  
+  output$mytable <- DT::renderDataTable({
+    
+    keep <- reactive({
+      if (input$filterDEtable == 2){ #DE
+        round(subset(DEresults, FDR < 0.05),3)
+      }
+      else if (input$filterDEtable == 3){ #significantly upregulated
+        round(subset(DEresults, logFC > 0 & FDR < 0.05),3)
+      }
+      else if (input$filterDEtable == 4){ #significantly downregulated
+        round(subset(DEresults, logFC < 0 & FDR < 0.05),3)
+      }
+      else if (input$filterDEtable == 5){ #nonDE
+        round(subset(DEresults, FDR > 0.05),3)
+      }
+      else round(DEresults,3)
+    })
+    
+    table <- keep()
+    table$GeneID <- rownames(table)
+    DT::datatable(table[, c(6,1,2,3,4,5)], rownames=FALSE)
+  }, options = list(orderClasses=TRUE))
   
   ### Expression that generates a violin plot
   output$violinPlot <- renderPlot(function(){

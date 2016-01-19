@@ -1,6 +1,6 @@
 library("shiny")
 
-shinyUI(navbarPage("Plots for Ratliff scRNA-Seq Prostate Data",
+shinyUI(navbarPage("Ratliff scRNA-Seq Prostate Data",
                    
                    ##### TAB FOR VIOLIN PLOTS #####
                    
@@ -54,5 +54,38 @@ shinyUI(navbarPage("Plots for Ratliff scRNA-Seq Prostate Data",
                                 textOutput("correlations")
                               )
                             )
+                            ),
+                   
+                   tabPanel("DE Results",
+                            sidebarLayout(
+                              sidebarPanel(
+                                h2("Differential Expression Results"), 
+                                helpText("Results for the differential expression analysis of 10,854 genes between Control vs. Knockdown cells, as tested via the R/BioConductor package edgeR. Genes with average counts < 5 across all replicates were not tested for differential expression, and do not appear in the table."),
+                                strong("Filter gene results by:"),
+                                selectInput("filterDEtable", 
+                                            label = "",
+                                            choices = list("All genes" = 1, 
+                                                           "Differentially expressed" = 2,
+                                                           "Significantly upregulated in KD" = 3,
+                                                           "Significantly downregulated in KD" = 4,
+                                                           "Not differentially expressed" = 5), 
+                                            selected = 2),
+                                submitButton("Submit")
+                              ),
+                              mainPanel(
+                                br(),
+                                tags$ul(
+                                  tags$li(strong("LogFC: "),"Log fold-change between knockdown and treatment groups"), 
+                                  tags$li(strong("LogCPM: "), "Log counts-per-million"), 
+                                  tags$li(strong("LR: "), "Likelihood ratio statistic for the differential expression test"),
+                                  tags$li(strong("PValue: "), "Unadjusted p-value"),
+                                  tags$li(strong("FDR: "), "P-value adjusted using the Benjamini-Hochberg procedure for false discovery rate control")
+                                ),
+                                br(),
+                                br(),
+                                dataTableOutput('mytable')
+                              )
                             )
+                            )
+                   
                    ))
