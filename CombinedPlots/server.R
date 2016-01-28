@@ -1,6 +1,12 @@
-require("shiny")
-require("ggplot2")
-require("DT")
+if(!require(shiny)){
+  install.packages("shiny")
+}
+if(!require(ggplot2)){
+  install.packages("ggplot2")
+}
+if(!require(DT)){
+  install.packages("DT")
+}
 
 #ENSG00000000457
 #ENSG00000142515

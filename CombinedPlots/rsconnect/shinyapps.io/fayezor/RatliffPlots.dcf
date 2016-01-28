@@ -2,8 +2,8 @@ name: RatliffPlots
 account: fayezor
 server: shinyapps.io
 appId: 76914
-bundleId: 352973
+bundleId: 352977
 url: https://fayezor.shinyapps.io/RatliffPlots/
-when: 1453239037.59158
+when: 1453239513.13247
 asMultiple: FALSE
 asStatic: FALSE
