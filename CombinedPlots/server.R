@@ -17,7 +17,17 @@ require(DT)
 # Get DE results information
 DEresults <- read.table("data/DEresults_full.txt")
 
-table <- round(DEresults,3)
+# Get biomart mappings of EnsemblID to gene name
+mart <- read.table("data/ensembl_name_mappings.txt", header=TRUE, colClasses="character")
+
+# For the dataset IDs that are in mart, enter them manually
+mart <- rbind(mart, c("ENSG00000280111", "name1"))
+mart <- rbind(mart, c("ENSG00000205246", "name2"))
+mart <- rbind(mart, c("ENSG00000231865", "name3"))
+mart <- rbind(mart, c("ENSG00000279978", "name4"))
+mart <- rbind(mart, c("ENSG00000269131", "name5"))
+mart <- rbind(mart, c("ENSG00000260872", "name6"))
+mart <- rbind(mart, c("ENSG00000227136", "name7"))
 
 # Get dataset and groups
 data <- read.table("data/prostatedata.txt")
@@ -40,6 +50,7 @@ shinyServer(function(input, output){
   
   output$mytable <- DT::renderDataTable({
     
+    # Filter by DE table
     keep <- reactive({
       if (input$filterDEtable == 2){ #DE
         round(subset(DEresults, FDR < 0.05),3)
@@ -57,8 +68,15 @@ shinyServer(function(input, output){
     })
     
     table <- keep()
+    
     table$GeneID <- rownames(table)
-    DT::datatable(table[, c(6,1,2,3,4,5)], rownames=FALSE)
+    # For each GeneID in table, get index in mart
+    match.idx <- match(table$GeneID, mart$EnsembleID)
+    # Create column of mapped gene names next to their IDs
+    table$GeneName <- mart$GeneName[match.idx]
+    table <- table[, c(7,6,1,2,3,4,5)]
+    
+    DT::datatable(table, rownames=FALSE)
   }, options = list(orderClasses=TRUE))
   
   ### Expression that generates a violin plot
