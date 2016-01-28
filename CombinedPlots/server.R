@@ -7,6 +7,9 @@ if(!require(ggplot2)){
 if(!require(DT)){
   install.packages("DT")
 }
+require(shiny)
+require(ggplot2)
+require(DT)
 
 #ENSG00000000457
 #ENSG00000142515
