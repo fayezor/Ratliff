@@ -1,6 +1,15 @@
-library("shiny")
-require("ggplot2")
-require("DT")
+if(!require(shiny)){
+  install.packages("shiny")
+}
+if(!require(ggplot2)){
+  install.packages("ggplot2")
+}
+if(!require(DT)){
+  install.packages("DT")
+}
+require(shiny)
+require(ggplot2)
+require(DT)
 
 shinyUI(navbarPage("Ratliff scRNA-Seq Prostate Data",
                    
