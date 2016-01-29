@@ -14,24 +14,45 @@ require(DT)
 #ENSG00000000457
 #ENSG00000142515
 
-# Get DE results information
+#############################################################
+##### IMPORTING/FORMATTING DATA FILES
+#############################################################
+
+# Get DE results information (for all genes, not just DE)
 DEresults <- read.table("data/DEresults_full.txt")
+
+# Get dataset (containing all unfiltered genes) and groups
+data <- read.table("data/prostatedata.txt")
+groups <- ifelse(substr(names(data),1,1)=="C","Control","Knockdown")
 
 # Get biomart mappings of EnsemblID to gene name
 mart <- read.table("data/ensembl_name_mappings.txt", header=TRUE, colClasses="character")
 
 # For the dataset IDs that are in mart, enter them manually
-mart <- rbind(mart, c("ENSG00000280111", "name1"))
-mart <- rbind(mart, c("ENSG00000205246", "name2"))
-mart <- rbind(mart, c("ENSG00000231865", "name3"))
-mart <- rbind(mart, c("ENSG00000279978", "name4"))
-mart <- rbind(mart, c("ENSG00000269131", "name5"))
-mart <- rbind(mart, c("ENSG00000260872", "name6"))
-mart <- rbind(mart, c("ENSG00000227136", "name7"))
+mart <- rbind(mart, c("ENSG00000280111", "NA"))
+mart <- rbind(mart, c("ENSG00000205246", "RPSAP58")) 
+mart <- rbind(mart, c("ENSG00000231865", "SIK3-IT1")) 
+mart <- rbind(mart, c("ENSG00000279978", "NA"))
+mart <- rbind(mart, c("ENSG00000269131", "AC004447.2"))
+mart <- rbind(mart, c("ENSG00000260872", "RP11"))
+mart <- rbind(mart, c("ENSG00000227136", "C10orf101"))
 
-# Get dataset and groups
-data <- read.table("data/prostatedata.txt")
-groups <- ifelse(substr(names(data),1,1)=="C","Control","Knockdown")
+# Subset mart by just the geneIDs found in the dataset
+mart.data <- mart[mart$EnsembleID %in% rownames(data) ,]
+
+### Check out duplicates in mart.data
+
+# # Indices for duplicated gene names
+# dup.idx <- duplicated(mart.data$GeneName)
+# # Names of duplicated gene names
+# dup.names <- mart.data$GeneName[dup.idx]
+# # Unique duplicated gene names
+# length(unique(dup.names))
+# dup.unique.names <- unique(dup.names)
+# # Subsetting mart.data by the duplicated gene names, and sort by gene name
+# dup.mart.data <- mart.data[mart.data$GeneName %in% dup.unique.names,]
+# dup.mart.data <- dup.mart.data[order(dup.mart.data$GeneName),]
+# head(dup.mart.data)
 
 # Custom input validation 
 inputValidation <- function(input){
@@ -46,7 +67,35 @@ inputValidation <- function(input){
   else{ NULL }
 }
 
+#############################################################
+##### BEGIN SHINY SERVER FUNCTIONALITIES
+#############################################################
+
 shinyServer(function(input, output){
+  
+  ##### ----------------------------------------------- 
+  ##### renderPrint: GENE ID - GENE NAME TABLE
+  ##### -----------------------------------------------
+  
+  # output$marttable <- DT::renderDataTable(
+  #   DT::datatable(mart.data, rownames=FALSE, 
+  #                 options = list(orderClasses=TRUE, pageLength=5))
+  #   )
+  
+  
+  ##### ----------------------------------------------- 
+  ##### renderPrint: LOOK UP GENE IDS GIVEN GENE NAME
+  ##### -----------------------------------------------
+  
+  # output$genenameout <- renderPrint({
+  #     #input$genename
+  #     genename <- input$genename
+  #     mart.data[mart.data$GeneName==genename,]$EnsembleID
+  #   })
+  
+  ##### ------------------------------------------ 
+  ##### renderDataTable: DE RESULTS TABLE
+  ##### ------------------------------------------ 
   
   output$mytable <- DT::renderDataTable({
     
@@ -79,7 +128,10 @@ shinyServer(function(input, output){
     DT::datatable(table, rownames=FALSE)
   }, options = list(orderClasses=TRUE))
   
-  ### Expression that generates a violin plot
+  ##### ------------------------------------------ 
+  ##### renderPlot: VIOLIN PLOT
+  ##### ------------------------------------------ 
+  
   output$violinPlot <- renderPlot(function(){
     
     # Get gene ID's reactively
@@ -91,8 +143,9 @@ shinyServer(function(input, output){
       input$geneID
     })
     
-    # Get data from the input gene reactively
+    # Get data from the input geneID reactively
     gene.df <- data.frame(gene=as.vector(as.numeric(data[rownames(data)==geneID(),])), group=groups)
+
     ylab <- "Expression"
     
     # If log transform box is selected...
@@ -114,7 +167,10 @@ shinyServer(function(input, output){
     print(p)
   })
 
-  ##### Output percentage of control zeros
+  ##### ------------------------------------------ 
+  ##### renderUI: PERCENTAGE OF ZEROS
+  ##### ------------------------------------------ 
+  
   output$zeros <- renderUI({ 
     
     # Get gene ID's reactively
@@ -140,7 +196,10 @@ shinyServer(function(input, output){
     HTML(paste(str1, str2, sep = '<br/>'))
   })
   
-  ##### Output differential expression results
+  ##### ------------------------------------------ 
+  ##### renderUI: PRINT DE RESULTS FOR GIVEN GENE
+  ##### ------------------------------------------ 
+  
   output$DEresults <- renderUI({
     
     # Get gene ID's reactively
@@ -169,7 +228,10 @@ shinyServer(function(input, output){
     }
   })
   
-  #Expression that generates the correlation between two genes plot 
+  ##### ------------------------------------------ 
+  ##### renderPlot: CORRELATION PLOT
+  ##### ------------------------------------------ 
+  
   output$correlationPlot <- renderPlot(function(){
     
     # Get gene ID's reactively
@@ -216,7 +278,10 @@ shinyServer(function(input, output){
     p
   })
   
-  #####Output correlations
+  ##### -------------------------------------------------  
+  ##### renderText: PRINT CORRELATIONS BETWEEN TWO GENES
+  ##### ------------------------------------------------- 
+  
   output$correlations <- renderText({ 
     
     # Get gene ID's reactively
