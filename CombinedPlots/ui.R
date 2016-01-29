@@ -14,14 +14,16 @@ require(DT)
 shinyUI(navbarPage("Ratliff scRNA-Seq Prostate Data",
                    
                    ##### ----------------------------------------------- 
-                   ##### DE RESULTS TAB
+                   ##### DE RESULTS TAB, CONTROL V. KNOCKDOWN
                    ##### -----------------------------------------------
                    
                    tabPanel("DE Results",
                             sidebarLayout(
                               sidebarPanel(
                                 h2("Differential Expression Results"), 
-                                helpText("Results for the differential expression analysis of 10,854 genes between Control vs. Knockdown cells, as tested via the R/BioConductor package edgeR. Genes with average counts < 5 across all replicates were not tested for differential expression, and do not appear in the table."),
+                                helpText("Results for the differential expression analysis of 10,854 genes between Control vs. Knockdown cells."),
+                                br(),
+                                helpText("Tested via the R/BioConductor package edgeR. Genes with average counts < 5 across all replicates were not tested for differential expression, and do not appear in the table."),
                                 strong("Filter gene results by:"),
                                 selectInput("filterDEtable", 
                                             label = "",
@@ -45,6 +47,44 @@ shinyUI(navbarPage("Ratliff scRNA-Seq Prostate Data",
                                 br(),
                                 br(),
                                 dataTableOutput('mytable')
+                              )
+                            )
+                   ),
+                   
+                   ##### ----------------------------------------------- 
+                   ##### DE RESULTS TAB, ZERO VS. NONZERO
+                   ##### -----------------------------------------------
+                   
+                   tabPanel("Zero v. Nonzero",
+                            sidebarLayout(
+                              sidebarPanel(
+                                h2("Differential Expression Results"), 
+                                helpText("Results for the differential expression analysis of 10,854 genes between groups of cells, defined by Zero vs. Nonzero SULT2B1b expression. There were 352 cells in the Zero group and 47 in the Nonzero group."),
+                                br(),
+                                helpText("Tested via the R/BioConductor package edgeR. Genes with average counts < 5 across all replicates were not tested for differential expression, and do not appear in the table."),
+                                strong("Filter gene results by:"),
+                                selectInput("filterDEtable_zerovnonzero", 
+                                            label = "",
+                                            choices = list("All genes" = 1, 
+                                                           "Differentially expressed" = 2,
+                                                           "Significantly upregulated in Zero" = 3,
+                                                           "Significantly downregulated in Nonzero" = 4,
+                                                           "Not differentially expressed" = 5), 
+                                            selected = 2),
+                                submitButton("Submit")
+                              ),
+                              mainPanel(
+                                br(),
+                                tags$ul(
+                                  tags$li(strong("LogFC: "),"Log fold-change between knockdown and treatment groups"), 
+                                  tags$li(strong("LogCPM: "), "Log counts-per-million"), 
+                                  tags$li(strong("LR: "), "Likelihood ratio statistic for the differential expression test"),
+                                  tags$li(strong("PValue: "), "Unadjusted p-value"),
+                                  tags$li(strong("FDR: "), "P-value adjusted using the Benjamini-Hochberg procedure for false discovery rate control")
+                                ),
+                                br(),
+                                br(),
+                                dataTableOutput('mytable_zerovnonzero')
                               )
                             )
                    ),

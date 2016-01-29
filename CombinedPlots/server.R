@@ -21,6 +21,9 @@ require(DT)
 # Get DE results information (for all genes, not just DE)
 DEresults <- read.table("data/DEresults_full.txt")
 
+# DE results information for zero v. nonzero comparison
+DEresults_zerovnonzero <- read.table("data/DEresults_full_zerovnonzero.txt")
+
 # Get dataset (containing all unfiltered genes) and groups
 data <- read.table("data/prostatedata.txt")
 groups <- ifelse(substr(names(data),1,1)=="C","Control","Knockdown")
@@ -93,9 +96,44 @@ shinyServer(function(input, output){
   #     mart.data[mart.data$GeneName==genename,]$EnsembleID
   #   })
   
-  ##### ------------------------------------------ 
-  ##### renderDataTable: DE RESULTS TABLE
-  ##### ------------------------------------------ 
+  ##### -------------------------------------------------------  
+  ##### renderDataTable: DE RESULTS TABLE, ZERO V KNOCKDOWN
+  ##### ------------------------------------------------------- 
+  
+  output$mytable_zerovnonzero <- DT::renderDataTable({
+    
+    # Filter by DE table
+    keep <- reactive({
+      if (input$filterDEtable_zerovnonzero == 2){ #DE
+        round(subset(DEresults_zerovnonzero, FDR < 0.05),3)
+      }
+      else if (input$filterDEtable_zerovnonzero == 3){ #significantly upregulated
+        round(subset(DEresults_zerovnonzero, logFC > 0 & FDR < 0.05),3)
+      }
+      else if (input$filterDEtable_zerovnonzero == 4){ #significantly downregulated
+        round(subset(DEresults_zerovnonzero, logFC < 0 & FDR < 0.05),3)
+      }
+      else if (input$filterDEtable_zerovnonzero == 5){ #nonDE
+        round(subset(DEresults_zerovnonzero, FDR > 0.05),3)
+      }
+      else round(DEresults_zerovnonzero,3)
+    })
+    
+    table <- keep()
+    
+    table$GeneID <- rownames(table)
+    # For each GeneID in table, get index in mart
+    match.idx <- match(table$GeneID, mart$EnsembleID)
+    # Create column of mapped gene names next to their IDs
+    table$GeneName <- mart$GeneName[match.idx]
+    table <- table[, c(7,6,1,2,3,4,5)]
+    
+    DT::datatable(table, rownames=FALSE)
+  }, options = list(orderClasses=TRUE))
+  
+  ##### -------------------------------------------------------
+  ##### renderDataTable: DE RESULTS TABLE, CONTROL V KNOCKDOWN
+  ##### -------------------------------------------------------
   
   output$mytable <- DT::renderDataTable({
     
