@@ -90,6 +90,34 @@ shinyUI(navbarPage("Ratliff scRNA-Seq Prostate Data",
                    ),
                    
                    ##### ----------------------------------------------- 
+                   ##### VENN DIAGRAM TAB
+                   ##### -----------------------------------------------
+                   
+                   tabPanel("Venn Diagram",
+                            sidebarLayout(
+                              sidebarPanel(
+                                br(),
+                                helpText("The Venn diagram to the right shows the overlap in genes found to be differentially expressed in the two comparisons, control vs. knockdown and zero vs. nonzero. Use the pull-down menu below to view the list of genes in each area of the diagram."),
+                                strong("Filter gene list by:"),
+                                selectInput("filterVenn", 
+                                            label = "",
+                                            choices = list("C-KD only"=1,
+                                                           "Zero-Nonzero only"=2,
+                                                           "C-KD and Zero-Nonzero"=3),
+                                            selected=1),
+                                submitButton("Submit")
+                              ),
+                            mainPanel(
+                              br(),
+                              br(),
+                              img(src='venn.jpeg', align = "center"),
+                              br(),
+                              br(),
+                              dataTableOutput('vennTable')
+                            )
+                            )),
+                   
+                   ##### ----------------------------------------------- 
                    ##### VIOLIN PLOTS TAB
                    ##### -----------------------------------------------
                    

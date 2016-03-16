@@ -24,6 +24,15 @@ DEresults <- read.table("data/DEresults_full.txt")
 # DE results information for zero v. nonzero comparison
 DEresults_zerovnonzero <- read.table("data/DEresults_full_zerovnonzero.txt")
 
+# Names of DE genes significant in each comparison
+DE1 <- rownames(DEresults[DEresults$FDR <= 0.05,])
+DE2 <- rownames(DEresults_zerovnonzero[DEresults_zerovnonzero$FDR <= 0.05,])
+
+# Names of DE genes falling in each area of the venn diagram
+DE1.only <- setdiff(DE1, DE2)
+DE2.only <- setdiff(DE2, DE1)
+DEboth <- intersect(DE1, DE2)
+
 # Get dataset (containing all unfiltered genes) and groups
 data <- read.table("data/prostatedata.txt")
 groups <- ifelse(substr(names(data),1,1)=="C","Control","Knockdown")
@@ -163,6 +172,29 @@ shinyServer(function(input, output){
     table$GeneName <- mart$GeneName[match.idx]
     table <- table[, c(7,6,1,2,3,4,5)]
     
+    DT::datatable(table, rownames=FALSE)
+  }, options = list(orderClasses=TRUE))
+  
+
+  ##### -------------------------------------------------------  
+  ##### renderDataTable: VENN DIAGRAM TABLE
+  ##### ------------------------------------------------------- 
+  
+  output$vennTable <- DT::renderDataTable({
+    
+    # Filter by DE table
+    keep <- reactive({
+      if (input$filterVenn == 1){ #C-KD only
+        # Subset mart by just the geneIDs found in the dataset
+        mart[mart$EnsembleID %in% DE1.only ,]
+      }
+      else if (input$filterVenn == 2){ #Zero-Nonzero only
+        mart[mart$EnsembleID %in% DE2.only ,]
+      }
+      else mart[mart$EnsembleID %in% DEboth ,] #C-KD and Zero-Nonzero
+    })
+    
+    table <- keep()
     DT::datatable(table, rownames=FALSE)
   }, options = list(orderClasses=TRUE))
   
